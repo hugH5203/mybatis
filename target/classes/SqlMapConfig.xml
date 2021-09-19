@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<!-- mybatis的主配置文件-->
+<configuration>
+    <!--配置jdbcConfig的文件(这玩意儿得配在最上面)-->
+    <properties resource="jdbcConfig.properties"></properties>
+
+    <settings>
+        <setting name="lazyLoadingEnabled" value="true"/><!--开启mybatis的延迟加载-->
+        <setting name="cacheEnabled" value="true"/><!--让框架支持二级缓存，mybatis默认支持-->
+        <setting name="aggressiveLazyLoading" value="false"/><!--将积极加载改为延迟加载，高版本默认为FALSE 即mybatis版本>3.4.1-->
+    </settings>
+
+    <!-- 给该包下所有实体类配置默认别名(忽略大小写)-->
+    <typeAliases>
+        <package name="in2021winter/com/huanghai/domain"/>
+    </typeAliases>
+
+
+    <!-- 配置环境-->
+    <environments default="mysql">
+        <!-- 配置mysql环境-->
+        <environment id="mysql">
+            <!-- 配置事务类型-->
+            <transactionManager type="JDBC"></transactionManager>
+            <!-- 配置数据源（连接池）-->
+            <dataSource type="POOLED">
+            <!-- 配置数据库的四个基本信息-->
+                <property name="driver" value="${jdbc.driver}"/>
+                <property name="url" value="${jdbc.url}"/>
+                <property name="username" value="${jdbc.username}"/>
+                <property name="password" value="${jdbc.password}"/>
+            </dataSource>
+        </environment>
+    </environments>
+
+    <!-- 指定映射配置文件的位置，即每个dao独立的配置映射文件,
+    用resource属性格式(xml方式)：xxx/xxx/xxx.xml,映射文件的目录结构必须与对应接口一样，
+    用classes（注解方式）：xxx.xxx.xxxDao,指定要实现的接口类，
+    用package（xml与注解方式都可用，万能的）,用.或/隔开都可用，但用于xml方式时必须有和接口一样的目录结构-->
+    <mappers>
+        <package name="in2021winter.com.huanghai.dao"/>
+    </mappers>
+</configuration>

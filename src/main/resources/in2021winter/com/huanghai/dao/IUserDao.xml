@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="in2021winter.com.huanghai.dao.IUserDao">
+    <!--开启该mapper支持二级缓存-->
+    <cache/>
+
+    <!-- 实体类与数据库映射的配对-->
+    <resultMap id="userMap" type="user">
+        <!-- 主键字段的对应-->
+        <id property="userid" column="id"></id>
+        <!--其他字段的对应-->
+        <result property="username" column="username"></result>
+        <result property="userbirthday" column="birthday"></result>
+        <result property="usersex" column="sex"></result>
+        <result property="useraddress" column="address"></result>
+ <!--       <collection property="accounts" ofType="account" column="id" select="in2021winter.com.huanghai.dao.IAccountDao.findByUid" fetchType="true">
+            延迟加载的配置，配置了这个就不要配下面的association了，其中column非写不可，select为要转到的具体方法，fetchType="true"意思是该属性设置了懒加载，只有调用了该属性的get方法才会触发这个查询子方法：IAccountDao.findByUid
+            而byId 具体要By的ID是哪个就要看column 的值是谁了
+        </collection>-->
+        <collection property="accounts" ofType="account"> <!--User类中有一个集合型属性叫accounts,oftype指泛型为account类也是要封装到的类，column用于指获取到该属性的字段（column可以省略）-->
+            <id property="id" column="aid" ></id>  <!-- 两个数据库的ID不能有冲突，实体类也一样，所以这里数据库的ID我起了别名-->
+            <result property="uid" column="uid"></result>
+            <result property="money" column="money"></result>
+        </collection>
+    </resultMap>
+
+
+    <select id="findAll" resultMap="userMap" useCache="true">  <!--useCache=true为让该方法支持二级缓存,所有的select操作都可以开启该功能-->
+        select * from user
+    </select>
+    <insert id="saveUser" parameterType="user">
+        insert into user(username,address,sex,birthday) values(#{username},#{useraddress},#{usersex},#{userbirthday})
+    </insert>
+    <update id="updateUser" parameterType="user">
+        update user set username=#{username},address=#{useraddress},sex=#{usersex},birthday=#{userbirthday} where id=#{userid}
+    </update>
+    <delete id="deleteUser" parameterType="INT">
+        delete from user where id=#{id}
+    </delete>
+    <select id="findById" parameterType="INT" resultMap="userMap">
+        select * from user where id=#{hah}
+    </select>
+    <select id="findByName" parameterType="String" resultMap="userMap">
+        select * from user where username like #{name}
+    </select>
+    <select id="findTotal" resultType="INT">
+        select count(*) from user
+    </select>
+    <select id="findByCondition" resultMap="userMap" parameterType="user">
+        select * from user
+        <where>
+            <if test="username !=null">
+                and username=#{username}
+            </if>
+
+            <if test="usersex !=null">
+                and sex=#{usersex}
+            </if>
+        </where>
+    </select>
+    <select id="findByAround" parameterType="user" resultMap="userMap">
+        select * from user   <!--这里的user类需要一个名为ids的集合，才能将各个值赋值进去，但加入对原代码会有较大改动，所有我没有测试-->
+        <where>
+            <if test="ids != null and ids.size()>0">
+                <foreach collection="ids" open="and id in (" close=")" item="uid" separator=",">
+                    #{uid}
+                </foreach>
+            </if>
+        </where>
+    </select>
+    <select id="findAllAccount" resultMap="userMap">
+        select u.* ,a.id aid,a.uid,a.money from user u left  join  account a on u.id=a.uid
+    </select>
+</mapper>

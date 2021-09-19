@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="in2021winter.com.huanghai.dao.IAccountDao">
+    <!--定义封装account与user的resultMap-->
+    <resultMap id="accountUserMap" type="account">
+        <id property="id" column="id" ></id>
+        <result property="uid" column="uid"></result>
+        <result property="money" column="money"></result>
+        <!--<association property="user" column="uid" javaType="user" select="in2021winter.com.huanghai.dao.IUserDao.findById">
+           延迟加载的配置，配置了这个就不要配下面的association了，其中column非写不可，select为要转到的具体方法，
+            而byId 具体要By的ID是哪个就要看column 的值是谁了
+        </association>-->
+        <!--一对一的关系映射,配置封装user的内容-->
+        <association property="user" column="uid" javaType="user"><!--Acount类中有一个对象型属性叫user,javatype指要封装到的类,（不写则报空指针异常），column用于指获取到该属性的字段（column可以省略）-->
+            <!-- 主键字段的对应-->
+            <id property="userid" column="sid"></id>  <!-- 两个数据库的ID不能有冲突，实体类也一样，所以这里数据库的ID我起了别名-->
+            <!--其他字段的对应-->
+            <result property="username" column="username"></result>
+            <result property="userbirthday" column="birthday"></result>
+            <result property="usersex" column="sex"></result>
+            <result property="useraddress" column="address"></result>
+        </association>
+    </resultMap>
+
+    <select id="findAll" resultMap="accountUserMap">
+        select u.id sid,username,birthday,sex,address,a.* from account a inner join  user u on u.id=a.uid
+    </select>
+    <select id="findByUid" parameterType="INT" resultMap="accountUserMap">
+        select * from account where uid=#{hah}
+    </select>
+</mapper>
